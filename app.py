@@ -1,10 +1,11 @@
 import streamlit as st
 import requests
 
-# Dealership Branding
+# Dealership Branding - UPDATED
 DEALER_NAME = "Mile High Car Helper"
 WEBSITE = "milehighcarhelper.com"
-LOCATION = "Denver, CO"
+PHONE = "(720) 605-1749"
+ADDRESS = "1709 S. Acoma St., Denver, CO 80223"
 
 def decode_vin(vin):
     url = f"https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/{vin}?format=json"
@@ -15,41 +16,52 @@ def decode_vin(vin):
             "year": data.get("ModelYear"),
             "make": data.get("Make"),
             "model": data.get("Model"),
+            "drive": data.get("DriveType"),
         }
     except:
         return None
 
-# --- UI DESIGN ---
-st.set_page_config(page_title="MHCH Shorts Gen", page_icon="📱")
+st.set_page_config(page_title="MHCH SEO Gen", page_icon="🏔️")
 
 st.markdown("""
     <style>
-    .main { max-width: 100%; }
-    .stButton>button { width: 100%; height: 3em; background-color: #FF0000; color: white; border-radius: 10px; }
+    .stButton>button { width: 100%; height: 3em; background-color: #FF0000; color: white; font-weight: bold; border-radius: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🏔️ MHCH Shorts Creator")
+st.title("🏔️ MHCH SEO Creator")
 
 vin_input = st.text_input("Paste VIN:", placeholder="17-digit number").upper()
-miles_input = st.text_input("Enter Miles:", placeholder="e.g. 85000")
+miles_input = st.number_input("Enter Miles:", min_value=0, step=1000)
 
-if st.button("🚀 GENERATE FOR SHORTS"):
+if st.button("🚀 GENERATE SEO CONTENT"):
     if vin_input:
         car = decode_vin(vin_input)
         if car and car['make']:
-            shorts_title = f"{car['year']} {car['make']} {car['model']} Walkaround! 🔥 #Shorts"
-            shorts_desc = f"""{car['year']} {car['make']} {car['model']} at {DEALER_NAME}! 
+            # SMART TITLE: Includes Denver for search reach
+            low_miles_hook = "LOW MILES! ⚡ " if miles_input < 60000 else ""
+            shorts_title = f"{low_miles_hook}{car['year']} {car['make']} {car['model']} - Denver, CO #Shorts"
+            
+            # SEO DESCRIPTION: Includes the full NAP (Name, Address, Phone)
+            shorts_desc = f"""Check out this {car['year']} {car['make']} {car['model']}! 
+👉 View details: https://{WEBSITE}
 
-✅ {miles_input} Miles
-📍 {LOCATION}
-🔗 Full info: {WEBSITE}
+This {car['make']} is currently available at {DEALER_NAME}! We are a no-headache used car dealer and full-service repair shop in the heart of Denver.
 
-#CarSales #Denver #UsedCars #Walkaround #{car['make']} #MileHighCarHelper #Shorts"""
+✅ Miles: {miles_input:,}
+✅ Drive: {car['drive']}
+📍 Location: {ADDRESS}
+📞 Call/Text: {PHONE}
 
-            st.subheader("Copy Title:")
+#DenverCars #MileHighCarHelper #UsedCarsDenver #ColoradoDrivers #{car['make']} #Shorts"""
+
+            st.success("SEO Content Ready!")
+            st.subheader("🎥 YouTube Title (Copy this)")
             st.code(shorts_title)
-            st.subheader("Copy Description:")
+            
+            st.subheader("📝 YouTube Description (Copy this)")
             st.code(shorts_desc)
+            
+            st.info("💡 Pro-Tip: When uploading, set the 'Location' field in YouTube to '1709 S Acoma St' to link this video to your shop's Google map!")
         else:
-            st.error("Invalid VIN. Try again.")
+            st.error("Invalid VIN. Please check and try again.")
