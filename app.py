@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-# Dealership Branding - UPDATED
+# Dealership Branding
 DEALER_NAME = "Mile High Car Helper"
 WEBSITE = "milehighcarhelper.com"
 PHONE = "(720) 605-1749"
@@ -21,47 +21,66 @@ def decode_vin(vin):
     except:
         return None
 
-st.set_page_config(page_title="MHCH SEO Gen", page_icon="🏔️")
+st.set_page_config(page_title="MHCH Quick-Gen", page_icon="🏔️")
 
-st.markdown("""
-    <style>
-    .stButton>button { width: 100%; height: 3em; background-color: #FF0000; color: white; font-weight: bold; border-radius: 10px; }
-    </style>
-    """, unsafe_allow_html=True)
+st.title("🏔️ MHCH Real-Time Creator")
 
-st.title("🏔️ MHCH SEO Creator")
+# --- INPUT SECTION ---
+vin_input = st.text_input("Scan/Paste VIN:").upper()
+miles_input = st.number_input("Current Miles:", min_value=0, step=1000)
 
-vin_input = st.text_input("Paste VIN:", placeholder="17-digit number").upper()
-miles_input = st.number_input("Enter Miles:", min_value=0, step=1000)
+# New Carfax/History Section
+st.subheader("Carfax Highlights")
+col1, col2 = st.columns(2)
+with col1:
+    one_owner = st.checkbox("1-Owner")
+    no_accidents = st.checkbox("No Accidents")
+with col2:
+    service_history = st.checkbox("Good Service History")
+    co_car = st.checkbox("Colorado Car")
 
-if st.button("🚀 GENERATE SEO CONTENT"):
+# Key Features
+features = st.multiselect("Select Key Features:", 
+                         ["New Tires", "New Brakes", "Apple CarPlay", "Leather", "Heated Seats", "Tow Package", "Sunroof", "4x4/AWD"])
+
+if st.button("🚀 GENERATE FOR YOUTUBE"):
     if vin_input:
         car = decode_vin(vin_input)
         if car and car['make']:
-            # SMART TITLE: Includes Denver for search reach
-            low_miles_hook = "LOW MILES! ⚡ " if miles_input < 60000 else ""
-            shorts_title = f"{low_miles_hook}{car['year']} {car['make']} {car['model']} - Denver, CO #Shorts"
+            # SMART TITLE
+            history_hook = "CLEAN CARFAX! ✨ " if no_accidents else ""
+            low_miles = "LOW MILES! ⚡ " if miles_input < 70000 else ""
+            title = f"{history_hook}{low_miles}{car['year']} {car['make']} {car['model']} - Denver, CO #Shorts"
             
-            # SEO DESCRIPTION: Includes the full NAP (Name, Address, Phone)
-            shorts_desc = f"""Check out this {car['year']} {car['make']} {car['model']}! 
-👉 View details: https://{WEBSITE}
+            # DESCRIPTION BUILDING
+            history_list = ""
+            if one_owner: history_list += "⭐ CARFAX 1-Owner\n"
+            if no_accidents: history_list += "⭐ Accident-Free / Clean History\n"
+            if service_history: history_list += "⭐ Excellent Service Records\n"
+            if co_car: history_list += "⭐ Local Colorado Vehicle\n"
 
-This {car['make']} is currently available at {DEALER_NAME}! We are a no-headache used car dealer and full-service repair shop in the heart of Denver.
+            feat_list = "".join([f"✅ {f}\n" for f in features])
 
-✅ Miles: {miles_input:,}
-✅ Drive: {car['drive']}
-📍 Location: {ADDRESS}
+            desc = f"""Full specs & price: https://{WEBSITE}
+
+This {car['year']} {car['make']} {car['model']} is ready for the Mile High City! 
+
+VEHICLE HISTORY:
+{history_list}
+DETAILS:
+✅ {miles_input:,} Miles
+✅ {car['drive']} 
+{feat_list}
+📍 Visit Us: {ADDRESS}
 📞 Call/Text: {PHONE}
 
-#DenverCars #MileHighCarHelper #UsedCarsDenver #ColoradoDrivers #{car['make']} #Shorts"""
+At Mile High Car Helper, we provide a no-headache buying experience and full-service auto repair. Denver's trusted car helper!
 
-            st.success("SEO Content Ready!")
-            st.subheader("🎥 YouTube Title (Copy this)")
-            st.code(shorts_title)
-            
-            st.subheader("📝 YouTube Description (Copy this)")
-            st.code(shorts_desc)
-            
-            st.info("💡 Pro-Tip: When uploading, set the 'Location' field in YouTube to '1709 S Acoma St' to link this video to your shop's Google map!")
+#DenverCars #MileHighCarHelper #CarfaxClean #UsedCarsDenver #ColoradoDrivers #{car['make']} #Shorts"""
+
+            st.subheader("🎥 YouTube Title")
+            st.code(title)
+            st.subheader("📝 YouTube Description")
+            st.code(desc)
         else:
-            st.error("Invalid VIN. Please check and try again.")
+            st.error("VIN Error")
